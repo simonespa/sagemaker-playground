@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Elastic Container Registory Repository to store ML containers
+
+Resources:
+  EcrRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: monsai-ml
+      ImageScanningConfiguration:
+        ScanOnPush: true
