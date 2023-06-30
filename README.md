@@ -1,4 +1,4 @@
-# Sagemaker The First
+# Sagemaker Playground
 
 ## References
 - https://github.com/aws/amazon-sagemaker-examples
