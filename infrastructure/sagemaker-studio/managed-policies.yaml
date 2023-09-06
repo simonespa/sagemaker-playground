@@ -1,0 +1,309 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Managed policies for Sage Maker Studio
+
+Resources:
+  EndpointDeployment:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_EndpointDeployment
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:CreateEndpointConfig
+              - sagemaker:CreateEndpoint
+              - sagemaker:DeleteEndpointConfig
+              - sagemaker:DeleteEndpoint
+              - sagemaker:UpdateEndpoint
+              - sagemaker:UpdateEndpointWeightsAndCapacities
+              - sagemaker:DescribeEndpoint
+              - sagemaker:DescribeEndpointConfig
+            Resource: arn:aws:sagemaker:*:*:*/*
+          - Effect: Allow
+            Action:
+              - sagemaker:ListEndpoints
+              - sagemaker:ListEndpointConfigs
+            Resource: '*'
+
+  ExperimentsVisualization:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_ExperimentsVisualization
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:DescribeAction
+              - sagemaker:DescribeArtifact
+              - sagemaker:DescribeContext
+              - sagemaker:DescribeExperiment
+              - sagemaker:DescribeTrial
+              - sagemaker:DescribeTrialComponent
+              - sagemaker:DescribeLineageGroup
+            Resource: arn:aws:sagemaker:*:*:*/*
+          - Effect: Allow
+            Action:
+              - sagemaker:ListAssociations
+              - sagemaker:ListActions
+              - sagemaker:ListArtifacts
+              - sagemaker:ListContexts
+              - sagemaker:ListExperiments
+              - sagemaker:ListTrials
+              - sagemaker:ListTrialComponents
+              - sagemaker:ListLineageGroups
+              - sagemaker:GetLineageGroupPolicy
+              - sagemaker:QueryLineage
+              - sagemaker:Search
+              - sagemaker:GetSearchSuggestions
+            Resource: '*'
+
+  ModelManagement:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_ModelManagement
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:CreateModel
+              - sagemaker:CreateModelPackage
+              - sagemaker:CreateModelPackageGroup
+              - sagemaker:DescribeModel
+              - sagemaker:DescribeModelPackage
+              - sagemaker:DescribeModelPackageGroup
+              - sagemaker:BatchDescribeModelPackage
+              - sagemaker:UpdateModelPackage
+              - sagemaker:DeleteModel
+              - sagemaker:DeleteModelPackage
+              - sagemaker:DeleteModelPackageGroup
+            Resource: arn:aws:sagemaker:*:*:*/*
+          - Effect: Allow
+            Action:
+              - sagemaker:ListModels
+              - sagemaker:ListModelPackages
+              - sagemaker:ListModelPackageGroups
+            Resource: '*'
+          - Effect: Allow
+            Action: iam:PassRole
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/service-role/SageMaker-*'
+            Condition:
+              StringEquals:
+                iam:PassedToService: sagemaker.amazonaws.com
+
+  PipelineManagement:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_PipelineManagement
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:CreatePipeline
+              - sagemaker:StartPipelineExecution
+              - sagemaker:StopPipelineExecution
+              - sagemaker:RetryPipelineExecution
+              - sagemaker:UpdatePipelineExecution
+              - sagemaker:SendPipelineExecutionStepSuccess
+              - sagemaker:SendPipelineExecutionStepFailure
+              - sagemaker:DescribePipeline
+              - sagemaker:DescribePipelineExecution
+              - sagemaker:DescribePipelineDefinitionForExecution
+              - sagemaker:DeletePipeline
+            Resource: arn:aws:sagemaker:*:*:*/*
+          - Effect: Allow
+            Action:
+              - sagemaker:ListPipelines
+              - sagemaker:ListPipelineExecutions
+              - sagemaker:ListPipelineExecutionSteps
+              - sagemaker:ListPipelineParametersForExecution
+            Resource: '*'
+          - Effect: Allow
+            Action: iam:PassRole
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/service-role/SageMaker-*'
+            Condition:
+              StringEquals:
+                iam:PassedToService: sagemaker.amazonaws.com
+
+  StudioAppPermissions:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_StudioAppPermissions
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: SMStudioAppPermissionsCRUD
+            Effect: Allow
+            Action:
+              - sagemaker:CreateApp
+              - sagemaker:CreateAppImageConfig
+              - sagemaker:UpdateAppImageConfig
+              - sagemaker:DeleteApp
+              - sagemaker:DeleteAppImageConfig
+              - sagemaker:DescribeApp
+              - sagemaker:DescribeAppImageConfig
+              - sagemaker:DescribeDomain
+              - sagemaker:DescribeUserProfile
+            Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:*/*'
+          - Sid: SMStudioAppPermissionsList
+            Effect: Allow
+            Action:
+              - sagemaker:ListApps
+              - sagemaker:ListAppImageConfigs
+              - sagemaker:ListDomains
+              - sagemaker:ListUserProfiles
+            Resource: '*'
+          - Sid: SMStudioAppPermissionsTagOnCreate
+            Effect: Allow
+            Action: sagemaker:AddTags
+            Resource: !Sub 'arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:*/*'
+            Condition:
+              'Null':
+                sagemaker:TaggingAction: false
+
+  SageMakerS3BucketPolicyTemplate:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_SageMakerS3BucketPolicyTemplate
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: s3:ListBucket
+            Resource: !Sub 'arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}'
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+            Resource: !Sub 'arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}/*'
+
+  CommonJobManagement:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_CommonJobManagement
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:CreateTrainingJob
+              - sagemaker:CreateTransformJob
+              - sagemaker:CreateProcessingJob
+              - sagemaker:CreateAutoMLJob
+              - sagemaker:CreateHyperParameterTuningJob
+              - sagemaker:StopTrainingJob
+              - sagemaker:StopProcessingJob
+              - sagemaker:StopAutoMLJob
+              - sagemaker:StopHyperParameterTuningJob
+              - sagemaker:DescribeTrainingJob
+              - sagemaker:DescribeTransformJob
+              - sagemaker:DescribeProcessingJob
+              - sagemaker:DescribeAutoMLJob
+              - sagemaker:DescribeHyperParameterTuningJob
+              - sagemaker:UpdateTrainingJob
+              - sagemaker:BatchGetMetrics
+            Resource: arn:aws:sagemaker:*:*:*/*
+          - Effect: Allow
+            Action:
+              - sagemaker:Search
+              - sagemaker:ListTrainingJobs
+              - sagemaker:ListTransformJobs
+              - sagemaker:ListProcessingJobs
+              - sagemaker:ListAutoMLJobs
+              - sagemaker:ListCandidatesForAutoMLJob
+              - sagemaker:ListHyperParameterTuningJobs
+              - sagemaker:ListTrainingJobsForHyperParameterTuningJob
+            Resource: '*'
+          - Effect: Allow
+            Action: iam:PassRole
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/service-role/SageMaker-*'
+            Condition:
+              StringEquals:
+                iam:PassedToService: sagemaker.amazonaws.com
+
+  ExperimentsManagement:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_ExperimentsManagement
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:AddAssociation
+              - sagemaker:CreateAction
+              - sagemaker:CreateArtifact
+              - sagemaker:CreateContext
+              - sagemaker:CreateExperiment
+              - sagemaker:CreateTrial
+              - sagemaker:CreateTrialComponent
+              - sagemaker:UpdateAction
+              - sagemaker:UpdateArtifact
+              - sagemaker:UpdateContext
+              - sagemaker:UpdateExperiment
+              - sagemaker:UpdateTrial
+              - sagemaker:UpdateTrialComponent
+              - sagemaker:AssociateTrialComponent
+              - sagemaker:DisassociateTrialComponent
+              - sagemaker:DeleteAssociation
+              - sagemaker:DeleteAction
+              - sagemaker:DeleteArtifact
+              - sagemaker:DeleteContext
+              - sagemaker:DeleteExperiment
+              - sagemaker:DeleteTrial
+              - sagemaker:DeleteTrialComponent
+            Resource: arn:aws:sagemaker:*:*:*/*
+
+Outputs:
+  EndpointDeploymentArn:
+    Description: The ARN of the SM_EndpointDeployment managed policy
+    Value: !Ref EndpointDeployment
+    Export:
+      Name: !Sub '${AWS::StackName}-EndpointDeploymentArn'
+
+  ExperimentsVisualizationArn:
+    Description: The ARN of the SM_ExperimentsVisualization managed policy
+    Value: !Ref ExperimentsVisualization
+    Export:
+      Name: !Sub '${AWS::StackName}-ExperimentsVisualizationArn'
+
+  ModelManagementArn:
+    Description: The ARN of the SM_ModelManagement managed policy
+    Value: !Ref ModelManagement
+    Export:
+      Name: !Sub '${AWS::StackName}-ModelManagementArn'
+
+  PipelineManagementArn:
+    Description: The ARN of the SM_PipelineManagement managed policy
+    Value: !Ref PipelineManagement
+    Export:
+      Name: !Sub '${AWS::StackName}-PipelineManagementArn'
+
+  StudioAppPermissionsArn:
+    Description: The ARN of the SM_StudioAppPermissions managed policy
+    Value: !Ref StudioAppPermissions
+    Export:
+      Name: !Sub '${AWS::StackName}-StudioAppPermissionsArn'
+
+  SageMakerS3BucketPolicyTemplateArn:
+    Description: The ARN of the SM_SageMakerS3BucketPolicyTemplate managed policy
+    Value: !Ref SageMakerS3BucketPolicyTemplate
+    Export:
+      Name: !Sub '${AWS::StackName}-SageMakerS3BucketPolicyTemplateArn'
+
+  CommonJobManagementArn:
+    Description: The ARN of the SM_CommonJobManagement managed policy
+    Value: !Ref CommonJobManagement
+    Export:
+      Name: !Sub '${AWS::StackName}-CommonJobManagementArn'
+
+  ExperimentsManagementArn:
+    Description: The ARN of the SM_ExperimentsManagement managed policy
+    Value: !Ref ExperimentsManagement
+    Export:
+      Name: !Sub '${AWS::StackName}-ExperimentsManagementArn'

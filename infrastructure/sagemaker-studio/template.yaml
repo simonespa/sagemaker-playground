@@ -1,0 +1,61 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: The domain name for Sage Maker.
+  VpcId:
+    Type: String
+    Description:
+      The ID of the Amazon Virtual Private Cloud (Amazon VPC) that Studio
+      uses for communication.
+    AllowedPattern: "[-0-9a-zA-Z]+"
+    MaxLength: 32
+  SubnetIds:
+    Type: CommaDelimitedList
+    Description: The VPC subnets that Studio uses for communication.
+    AllowedPattern: "[-0-9a-zA-Z]+"
+
+Resources:
+  DataScientistRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SageMaker-DataScientist
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !ImportValue ss-sagemaker-managed-policies-SageMakerS3BucketPolicyTemplateArn
+        - !ImportValue ss-sagemaker-managed-policies-CommonJobManagementArn
+        - !ImportValue ss-sagemaker-managed-policies-ExperimentsManagementArn
+        - !ImportValue ss-sagemaker-managed-policies-ExperimentsVisualizationArn
+        - !ImportValue ss-sagemaker-managed-policies-ModelManagementArn
+        - !ImportValue ss-sagemaker-managed-policies-StudioAppPermissionsArn
+
+  SageMakerDomain:
+    Type: AWS::SageMaker::Domain
+    Properties:
+      AuthMode: IAM
+      DefaultUserSettings:
+        ExecutionRole: !GetAtt DataScientistRole.Arn
+      DomainName: !Ref DomainName
+      SubnetIds: !Ref SubnetIds
+      VpcId: !Ref VpcId
+
+  DataScientistUserProfile:
+    Type: AWS::SageMaker::UserProfile
+    Properties:
+      DomainId: !Ref SageMakerDomain
+      UserProfileName: DataScientist
+
+Outputs:
+  SageMakerDomainId:
+    Description: The Sage Maker domain ID
+    Value: !Ref SageMakerDomain
+    Export:
+      Name: !Sub '${AWS::StackName}-SageMakerDomainId'

@@ -31,7 +31,13 @@ Resources:
   SageMakerModel:
     Type: AWS::SageMaker::Model
     Properties:
+      ModelName: monsai-model
       ExecutionRoleArn: !GetAtt SageMakerRole.Arn
+      PrimaryContainer:
+        Mode: SingleModel
+      Tags:
+        - Key: owner
+          Value: simone.spaccarotella@bbc.co.uk
 
   SageMakerEndpointConfig:
     Type: 'AWS::SageMaker::EndpointConfig'
