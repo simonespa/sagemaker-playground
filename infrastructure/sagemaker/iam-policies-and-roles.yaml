@@ -34,8 +34,7 @@ Resources:
               Service: sagemaker.amazonaws.com
         Version: 2012-10-17
       ManagedPolicyArns:
-        - !Ref SageMakerS3BucketAccess
-        - !Ref JumpStartS3BucketAccess
+        - !Ref SageMakerAndJumpStartS3BucketAccess
         - !Ref CommonJobManagement
         - !Ref ExperimentsManagement
         - !Ref ExperimentsVisualization
@@ -44,6 +43,7 @@ Resources:
         - !Ref TagPolicy
         - arn:aws:iam::aws:policy/AmazonSageMakerCanvasFullAccess
         - arn:aws:iam::aws:policy/AmazonSageMakerCanvasAIServicesAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonSageMakerCanvasForecastAccess
       Tags:
         - Key: spa:owner
           Value: simone.spaccarotella@bbc.co.uk
@@ -235,33 +235,24 @@ Resources:
               'Null':
                 sagemaker:TaggingAction: false
 
-  SageMakerS3BucketAccess:
+  SageMakerAndJumpStartS3BucketAccess:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: SM_SageMakerS3BucketPolicyTemplate
+      ManagedPolicyName: SM_SageMakerAndJumpStartS3BucketAccess
       PolicyDocument:
         Version: 2012-10-17
         Statement:
           - Effect: Allow
             Action: s3:ListBucket
-            Resource: !Sub 'arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}'
+            Resource:
+              - !Sub 'arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}'
+              - !Sub 'arn:aws:s3:::jumpstart-cache-prod-${AWS::Region}'
           - Effect: Allow
             Action:
               - s3:GetObject
               - s3:PutObject
               - s3:DeleteObject
             Resource: !Sub 'arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}/*'
-
-  JumpStartS3BucketAccess:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: SM_JumpStartAccessPermissions
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action: s3:ListBucket
-            Resource: !Sub 'arn:aws:s3:::jumpstart-cache-prod-${AWS::Region}'
           - Effect: Allow
             Action: s3:GetObject
             Resource: !Sub 'arn:aws:s3:::jumpstart-cache-prod-${AWS::Region}/*'

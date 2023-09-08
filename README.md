@@ -76,12 +76,14 @@ aws cloudformation describe-change-set --change-set-name $CHANGESET --stack-name
 ```
 export STACK_PREFIX=spa-sagemaker
 export TAGS=file://infrastructure/tags.json
+export TEMPLATE_PREFIX=file://infrastructure/sagemaker
 ```
 
 ```
-export STACK=${STACK_PREFIX}-iam-policies-and-roles
+export FILE=iam-policies-and-roles
+export STACK=${STACK_PREFIX}-${FILE}
 export CHANGESET=${STACK}-change-set
-export TEMPLATE=file://infrastructure/sagemaker/iam-policies-and-roles.yaml
+export TEMPLATE=${TEMPLATE_PREFIX}/${FILE}.yaml
 
 aws cloudformation create-change-set --change-set-name $CHANGESET --change-set-type CREATE --stack-name $STACK --template-body $TEMPLATE --tags $TAGS --capabilities CAPABILITY_NAMED_IAM
 
@@ -89,10 +91,11 @@ aws cloudformation execute-change-set --change-set-name $CHANGESET --stack-name 
 ```
 
 ```
-export STACK=${STACK_PREFIX}-domain
+export FILE=domain
+export STACK=${STACK_PREFIX}-${FILE}
 export CHANGESET=${STACK}-change-set
-export TEMPLATE=file://infrastructure/sagemaker/domain.yaml
-export PARAMS=file://infrastructure/sagemaker/domain.params.json
+export TEMPLATE=${TEMPLATE_PREFIX}/${FILE}.yaml
+export PARAMS=${TEMPLATE_PREFIX}/${FILE}.params.json
 
 aws cloudformation create-change-set --change-set-name $CHANGESET --change-set-type CREATE --stack-name $STACK --template-body $TEMPLATE --parameters $PARAMS --tags $TAGS
 
@@ -100,9 +103,10 @@ aws cloudformation execute-change-set --change-set-name $CHANGESET --stack-name 
 ```
 
 ```
-export STACK=${STACK_PREFIX}-user-profiles
+export FILE=user-profiles
+export STACK=${STACK_PREFIX}-${FILE}
 export CHANGESET=${STACK}-change-set
-export TEMPLATE=file://infrastructure/sagemaker/user-profiles.yaml
+export TEMPLATE=${TEMPLATE_PREFIX}/${FILE}.yaml
 
 aws cloudformation create-change-set --change-set-name $CHANGESET --change-set-type CREATE --stack-name $STACK --template-body $TEMPLATE --tags $TAGS
 

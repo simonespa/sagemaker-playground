@@ -111,6 +111,10 @@ A persona used by SageMaker compute resources such as jobs and endpoints. Permit
 - Manage Glue Tables: Permissions to create and manage Glue tables for SageMaker Feature Store and Data Wrangler.
 
 ## Additional policies
-- AmazonSageMakerCanvasFullAccess: Enable Canvas base permissions
-- AmazonSageMakerCanvasAIServicesAccess: Enable Canvas Ready-to-use models
-- AmazonSagemakerCanvasForecastRolePolicy: Enable time series forecasting
+- arn:aws:iam::aws:policy/AmazonSageMakerCanvasFullAccess: Enable Canvas base permissions
+- arn:aws:iam::aws:policy/AmazonSageMakerCanvasAIServicesAccess: Enable Canvas Ready-to-use models
+- arn:aws:iam::aws:policy/service-role/AmazonSageMakerCanvasForecastAccess: Enable time series forecasting with Canvas
+
+## Gotcha
+
+There is a quota of 10 policies per role, need to work around this.
