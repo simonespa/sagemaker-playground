@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: User profiles for Sage Maker
+
+Resources:
+  SimoneSpaccarotella:
+    Type: AWS::SageMaker::UserProfile
+    Properties:
+      DomainId: !ImportValue spa-sagemaker-domain-SageMakerDomainId
+      UserProfileName: simone-spaccarotella
+      UserSettings:
+         ExecutionRole: !ImportValue spa-sagemaker-iam-policies-and-roles-DataScientistRoleArn
+      Tags:
+        - Key: spa:owner
+          Value: simone.spaccarotella@bbc.co.uk
+        - Key: spa:project
+          Value: sagemaker

@@ -2,32 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: SageMaker model and endpoint
 
 Resources:
-  SageMakerRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub '${AWS::Region}-monsai-sagemaker-role'
-      Description: The execution role for Monsai SageMaker
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - sagemaker.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: Sagemaker
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action: 'sagemaker:*'
-                Resource: '*'
-      Tags:
-        - Key: owner
-          Value: simone.spaccarotella@bbc.co.uk
-
   SageMakerModel:
     Type: AWS::SageMaker::Model
     Properties:

@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "DomainName",
+    "ParameterValue": "spa-sagemaker"
+  },
+  {
+    "ParameterKey": "VpcId",
+    "ParameterValue": "vpc-039b1d26c117b9992"
+  },
+  {
+    "ParameterKey": "SubnetIds",
+    "ParameterValue": "subnet-0928240230e4fc73c, subnet-03357028bc8ecbc40, subnet-0062450e680d5151c"
+  }
+]

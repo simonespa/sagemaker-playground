@@ -1,8 +1,78 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: Managed policies for Sage Maker Studio
+Description: IAM policies and roles for Sage Maker
 
 Resources:
+  DefaultReadOnlyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SageMaker-DefaultReadOnly
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSageMakerReadOnly
+      Tags:
+        - Key: spa:owner
+          Value: simone.spaccarotella@bbc.co.uk
+        - Key: spa:project
+          Value: sagemaker
+
+  DataScientistRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SageMaker-DataScientist
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Ref SageMakerS3BucketAccess
+        - !Ref JumpStartS3BucketAccess
+        - !Ref CommonJobManagement
+        - !Ref ExperimentsManagement
+        - !Ref ExperimentsVisualization
+        - !Ref ModelManagement
+        - !Ref StudioAppPermissions
+        - !Ref TagPolicy
+        - arn:aws:iam::aws:policy/AmazonSageMakerCanvasFullAccess
+        - arn:aws:iam::aws:policy/AmazonSageMakerCanvasAIServicesAccess
+      Tags:
+        - Key: spa:owner
+          Value: simone.spaccarotella@bbc.co.uk
+        - Key: spa:project
+          Value: sagemaker
+
+  MLOpsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SageMaker-MLOps
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - !Ref EndpointDeployment
+        - !Ref ExperimentsVisualization
+        - !Ref ModelManagement
+        - !Ref PipelineManagement
+        - !Ref StudioAppPermissions
+      Tags:
+        - Key: spa:owner
+          Value: simone.spaccarotella@bbc.co.uk
+        - Key: spa:project
+          Value: sagemaker
+
   EndpointDeployment:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -165,7 +235,7 @@ Resources:
               'Null':
                 sagemaker:TaggingAction: false
 
-  SageMakerS3BucketPolicyTemplate:
+  SageMakerS3BucketAccess:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       ManagedPolicyName: SM_SageMakerS3BucketPolicyTemplate
@@ -181,6 +251,20 @@ Resources:
               - s3:PutObject
               - s3:DeleteObject
             Resource: !Sub 'arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}/*'
+
+  JumpStartS3BucketAccess:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_JumpStartAccessPermissions
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: s3:ListBucket
+            Resource: !Sub 'arn:aws:s3:::jumpstart-cache-prod-${AWS::Region}'
+          - Effect: Allow
+            Action: s3:GetObject
+            Resource: !Sub 'arn:aws:s3:::jumpstart-cache-prod-${AWS::Region}/*'
 
   CommonJobManagement:
     Type: AWS::IAM::ManagedPolicy
@@ -259,51 +343,38 @@ Resources:
               - sagemaker:DeleteTrialComponent
             Resource: arn:aws:sagemaker:*:*:*/*
 
+  TagPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: SM_TagPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sagemaker:AddTags
+            Resource:
+              - arn:aws:sagemaker:*:*:code-repository/*
+              - arn:aws:sagemaker:*:*:endpoint/*
+              - arn:aws:sagemaker:*:*:endpoint-config/*
+              - arn:aws:sagemaker:*:*:image/*
+              - arn:aws:sagemaker:*:*:model/*
+              - arn:aws:sagemaker:*:*:workteam/*
+
 Outputs:
-  EndpointDeploymentArn:
-    Description: The ARN of the SM_EndpointDeployment managed policy
-    Value: !Ref EndpointDeployment
+  DefaultReadOnlyRoleArn:
+    Description: The ARN of the DefaultReadOnly role
+    Value: !GetAtt DefaultReadOnlyRole.Arn
     Export:
-      Name: !Sub '${AWS::StackName}-EndpointDeploymentArn'
+      Name: !Sub '${AWS::StackName}-DefaultReadOnlyRoleArn'
 
-  ExperimentsVisualizationArn:
-    Description: The ARN of the SM_ExperimentsVisualization managed policy
-    Value: !Ref ExperimentsVisualization
+  DataScientistRoleArn:
+    Description: The ARN of the DataScientist role
+    Value: !GetAtt DataScientistRole.Arn
     Export:
-      Name: !Sub '${AWS::StackName}-ExperimentsVisualizationArn'
+      Name: !Sub '${AWS::StackName}-DataScientistRoleArn'
 
-  ModelManagementArn:
-    Description: The ARN of the SM_ModelManagement managed policy
-    Value: !Ref ModelManagement
+  MLOpsRoleArn:
+    Description: The ARN of the MLOps role
+    Value: !GetAtt MLOpsRole.Arn
     Export:
-      Name: !Sub '${AWS::StackName}-ModelManagementArn'
-
-  PipelineManagementArn:
-    Description: The ARN of the SM_PipelineManagement managed policy
-    Value: !Ref PipelineManagement
-    Export:
-      Name: !Sub '${AWS::StackName}-PipelineManagementArn'
-
-  StudioAppPermissionsArn:
-    Description: The ARN of the SM_StudioAppPermissions managed policy
-    Value: !Ref StudioAppPermissions
-    Export:
-      Name: !Sub '${AWS::StackName}-StudioAppPermissionsArn'
-
-  SageMakerS3BucketPolicyTemplateArn:
-    Description: The ARN of the SM_SageMakerS3BucketPolicyTemplate managed policy
-    Value: !Ref SageMakerS3BucketPolicyTemplate
-    Export:
-      Name: !Sub '${AWS::StackName}-SageMakerS3BucketPolicyTemplateArn'
-
-  CommonJobManagementArn:
-    Description: The ARN of the SM_CommonJobManagement managed policy
-    Value: !Ref CommonJobManagement
-    Export:
-      Name: !Sub '${AWS::StackName}-CommonJobManagementArn'
-
-  ExperimentsManagementArn:
-    Description: The ARN of the SM_ExperimentsManagement managed policy
-    Value: !Ref ExperimentsManagement
-    Export:
-      Name: !Sub '${AWS::StackName}-ExperimentsManagementArn'
+      Name: !Sub '${AWS::StackName}-MLOpsRoleArn'

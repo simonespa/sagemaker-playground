@@ -17,24 +17,94 @@
 - https://sagemaker-examples.readthedocs.io
 - https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html
 
-## CloudFormation infrastructure
+## CloudFormation Resource types
 
-### SageMaker
+[SageMaker resource types](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_SageMaker.html)
 
-- [AWS::SageMaker](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_SageMaker.html)
+## AWS CLI
 
-```
-aws cloudformation create-stack --stack-name monsai-sagemaker --template-body file://infrastructure/sagemaker/template.yaml --capabilities CAPABILITY_NAMED_IAM --tags Key=owner,Value=simone.spaccarotella@bbc.co.uk
-```
+### Stacks
 
-### IAM
-
-- [AWS::IAM::Role](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html)
-
-### Elastic Container Registry
-
-- [AWS::ECR::Repository](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecr-repository.html)
+[create-stack](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/create-stack.html)
 
 ```
-aws cloudformation create-stack --stack-name monsai-ecr --template-body file://infrastructure/ecr/template.yaml --tags Key=owner,Value=simone.spaccarotella@bbc.co.uk
+aws cloudformation create-stack --stack-name $STACK --template-body $TEMPLATE --parameters $PARAMS --tags $TAGS
+```
+
+[describe-stacks](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/describe-stacks.html)
+
+```
+aws cloudformation describe-stacks --stack-name $STACK
+```
+
+[update-stack](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/update-stack.html)
+
+```
+aws cloudformation update-stack --stack-name $STACK --template-body $TEMPLATE --parameters $PARAMS
+```
+
+[delete-stack](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/delete-stack.html)
+
+```
+aws cloudformation delete-stack --stack-name $STACK
+```
+
+### Change Sets
+
+[create-change-set](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/create-change-set.html)
+
+```
+aws cloudformation create-change-set --change-set-name $CHANGESET --change-set-type CREATE --stack-name $STACK --template-body $TEMPLATE --parameters $PARAMS --tags $TAGS
+```
+
+[execute-change-set](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/execute-change-set.html)
+
+```
+aws cloudformation execute-change-set --change-set-name $CHANGESET --stack-name $STACK
+```
+
+[describe-change-set](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/describe-change-set.html)
+
+```
+aws cloudformation describe-change-set --change-set-name $CHANGESET --stack-name $STACK
+```
+
+[delete-change-set](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/delete-change-set.html)
+
+## Infrastructure
+
+```
+export STACK_PREFIX=spa-sagemaker
+export TAGS=file://infrastructure/tags.json
+```
+
+```
+export STACK=${STACK_PREFIX}-iam-policies-and-roles
+export CHANGESET=${STACK}-change-set
+export TEMPLATE=file://infrastructure/sagemaker/iam-policies-and-roles.yaml
+
+aws cloudformation create-change-set --change-set-name $CHANGESET --change-set-type CREATE --stack-name $STACK --template-body $TEMPLATE --tags $TAGS --capabilities CAPABILITY_NAMED_IAM
+
+aws cloudformation execute-change-set --change-set-name $CHANGESET --stack-name $STACK
+```
+
+```
+export STACK=${STACK_PREFIX}-domain
+export CHANGESET=${STACK}-change-set
+export TEMPLATE=file://infrastructure/sagemaker/domain.yaml
+export PARAMS=file://infrastructure/sagemaker/domain.params.json
+
+aws cloudformation create-change-set --change-set-name $CHANGESET --change-set-type CREATE --stack-name $STACK --template-body $TEMPLATE --parameters $PARAMS --tags $TAGS
+
+aws cloudformation execute-change-set --change-set-name $CHANGESET --stack-name $STACK
+```
+
+```
+export STACK=${STACK_PREFIX}-user-profiles
+export CHANGESET=${STACK}-change-set
+export TEMPLATE=file://infrastructure/sagemaker/user-profiles.yaml
+
+aws cloudformation create-change-set --change-set-name $CHANGESET --change-set-type CREATE --stack-name $STACK --template-body $TEMPLATE --tags $TAGS
+
+aws cloudformation execute-change-set --change-set-name $CHANGESET --stack-name $STACK
 ```

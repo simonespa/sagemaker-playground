@@ -1,0 +1,42 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: SageMaker domain with a default read-only execution role
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: The domain name for Sage Maker.
+  VpcId:
+    Type: String
+    Description:
+      The ID of the Amazon Virtual Private Cloud (Amazon VPC) that Studio
+      uses for communication.
+    AllowedPattern: "[-0-9a-zA-Z]+"
+    MaxLength: 32
+  SubnetIds:
+    Type: CommaDelimitedList
+    Description: The VPC subnets that Studio uses for communication.
+    AllowedPattern: "[-0-9a-zA-Z]+"
+
+Resources:
+  SageMakerDomain:
+    Type: AWS::SageMaker::Domain
+    Properties:
+      AuthMode: IAM
+      DefaultUserSettings:
+        ExecutionRole: !ImportValue spa-sagemaker-iam-policies-and-roles-DefaultReadOnlyRoleArn
+      DomainName: !Ref DomainName
+      SubnetIds: !Ref SubnetIds
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: spa:owner
+          Value: simone.spaccarotella@bbc.co.uk
+        - Key: spa:project
+          Value: sagemaker
+
+Outputs:
+  SageMakerDomainId:
+    Description: The Sage Maker domain ID
+    Value: !Ref SageMakerDomain
+    Export:
+      Name: !Sub '${AWS::StackName}-SageMakerDomainId'
