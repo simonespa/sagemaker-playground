@@ -22,6 +22,25 @@ Resources:
         - Key: spa:project
           Value: sagemaker
 
+  FullAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SageMaker-FullAccess
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+      Tags:
+        - Key: spa:owner
+          Value: simone.spaccarotella@bbc.co.uk
+        - Key: spa:project
+          Value: sagemaker
+
   DataScientistRole:
     Type: AWS::IAM::Role
     Properties:
@@ -357,6 +376,12 @@ Outputs:
     Value: !GetAtt DefaultReadOnlyRole.Arn
     Export:
       Name: !Sub '${AWS::StackName}-DefaultReadOnlyRoleArn'
+
+  FullAccessRoleArn:
+    Description: The ARN of the FullAccess role
+    Value: !GetAtt FullAccessRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-FullAccessRoleArn'
 
   DataScientistRoleArn:
     Description: The ARN of the DataScientist role

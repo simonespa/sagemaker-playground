@@ -8,7 +8,7 @@ Resources:
       DomainId: !ImportValue spa-sagemaker-domain-SageMakerDomainId
       UserProfileName: simone-spaccarotella
       UserSettings:
-         ExecutionRole: !ImportValue spa-sagemaker-iam-policies-and-roles-DataScientistRoleArn
+         ExecutionRole: !ImportValue spa-sagemaker-iam-policies-and-roles-FullAccessRoleArn
       Tags:
         - Key: spa:owner
           Value: simone.spaccarotella@bbc.co.uk

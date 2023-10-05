@@ -1,12 +1,6 @@
 # Sagemaker Playground
 
-## Setup with CloudFormation
-
-- https://aws.amazon.com/about-aws/whats-new/2021/02/now-launch-amazon-sagemaker-studio-aws-cloudformation/
-- https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_SageMaker.html
-- https://docs.aws.amazon.com/sagemaker/latest/dg/gs.html
-
-## Deploy to production with cloudformation
+## Deploy a model to production
 
 - https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-deployment.html
 - https://faun.pub/mastering-the-mystical-art-of-model-deployment-part-2-deploying-amazon-sagemaker-endpoints-with-cf9539dc2579
