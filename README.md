@@ -1,5 +1,10 @@
 # Sagemaker Playground
 
+## Tutorial
+
+- [Amazon SageMaker Studio](https://docs.aws.amazon.com/sagemaker/latest/dg/studio.html)
+- [Getting Started with Sagemaker](https://aws.amazon.com/sagemaker/getting-started/)
+
 ## Deploy a model to production
 
 - https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-deployment.html
